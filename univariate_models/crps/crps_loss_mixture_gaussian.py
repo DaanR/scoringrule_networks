@@ -77,6 +77,12 @@ def A(mu, sigma):
 """
     Implements CRPS loss for a mixture Gaussian distribution. In accordance with http://cran.nexr.com/web/packages/scoringRules/vignettes/crpsformulas.html
     
+    The source for this formula is:
+        Grimit, E P, T Gneiting, V J Berrocal, and N A Johnson. 2006.
+        “The Continuous Ranked Probability Score for Circular Variables
+        and Its Application to Mesoscale Forecast Ensemble Verification.”
+        Quarterly Journal of the Royal Meteorological Society 132: 2925–42.
+    
     :param y_true: a (batch_size, d) shaped tensor
     :param means: a (batch_size, n_mixtures, d) shaped tensor containing each mixture's mean
     :param stdevs: a (batch_size, n_mixtures, d) shaped tensor containing each mixture's standard deviation
@@ -113,7 +119,6 @@ def mixture_gaussian_CRPS(y_true, means, stdevs, weights):
 
     #Return the final CRPS expression
     return tf.reduce_mean(CRPS1 - CRPS2)
-
 
 
 """

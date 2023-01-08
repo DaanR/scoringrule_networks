@@ -46,6 +46,12 @@ def gaussian_CRPS(mu, sigma, y_true):
 """
 Implementation of a keras custom loss function. It evaluates CRPS over a Gaussian generated CRPS term.
 
+The source for this formula is given by:
+    Gneiting, T, A E Raftery, A H Westveld III, and T Goldman.
+    2005. “Calibrated Probabilistic Forecasting Using Ensemble
+    Model Output Statistics and Minimum CRPS Estimation.” Monthly
+    Weather Review 133: 1098–1118.
+
 :param y_true: a (batch_size, n) shaped tensor, containing the measurements
 :param y_pred: a (batch_size, 2*n) shaped tensor, with:
                     y_pred[:,:n] containing the forecasted means
