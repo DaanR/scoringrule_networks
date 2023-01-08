@@ -3,12 +3,14 @@ from keras.layers import Dense
 import numpy as np
 from numpy.random import normal
 
-from crps_loss_gaussian import gaussian_CRPS_loss
-from visualizations import visualize_gaussian_predictions
+import sys
+sys.path.append('..') # Add the parent folder
+from univariate_models.crps.crps_loss_gaussian import gaussian_CRPS_loss
+from univariate_models.crps.visualizations.gaussian_visualizations import visualize_gaussian_predictions, do_gaussian_PIT
 
 
 """
-     We define a simple example model, with two hidden layers and "adam" loss.
+     Defines a simple example model, with two hidden layers and "adam" loss.
 """
 def gaussian_crps_model(import_dim, target_dim):
     model = keras.Sequential()
@@ -23,8 +25,11 @@ def gaussian_crps_model(import_dim, target_dim):
 
 
 """
-    Generates a dummy dataset. Entries in x and y are related (sampled from identical distributions)
-    but y's entries warped by linear mappings
+    Generates a dummy dataset. Entries in x and y are related (sampled from an identical distribution)
+    but entries in y are warped by linear transformed).
+    
+    Models will attempt to learn the (linearly transformed versions of the) input distribution from the inputs x
+    mapped those mappings.
 """
 def generate_dummy_data(input_dim, target_dim, n):
     x = np.empty((n, input_dim))
@@ -42,13 +47,13 @@ def generate_dummy_data(input_dim, target_dim, n):
 
 """
     In this example, we define a simple ANN model, and train it via Gaussian CRPS loss.
-    We will then visualize the predictions
+    We will then visualize the predictions, and compute probability integral transformations
 """
 if __name__ == "__main__":
     input_dim = 10
     target_dim = 5
     
-    epochs = 10
+    epochs = 15
     
     n_train = 10000
     n_test = 1000
@@ -57,8 +62,15 @@ if __name__ == "__main__":
     x_train, y_train = generate_dummy_data(input_dim, target_dim, n_train)
     x_test, y_test = generate_dummy_data(input_dim, target_dim, n_test)
 
+    # Train the model a couple of epochs
     model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs = epochs)
     
+    # Predict on unseen data
+    y_pred = model.predict(x_test)
+    
+    # Make plot visualizations
     examples = 5
-    y_pred = model.predict(x_test[:5])
-    visualize_gaussian_predictions(y_test[:5], y_pred)
+    visualize_gaussian_predictions(y_test[:examples], y_pred[:examples])
+    
+    # Compute probability integral transformations
+    do_gaussian_PIT(y_test, y_pred)

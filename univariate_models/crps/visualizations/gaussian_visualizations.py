@@ -2,7 +2,9 @@ from scipy.stats import norm
 import numpy as np
 import matplotlib.pyplot as plt
 
-from crps_loss_gaussian import get_mu_sigma
+import sys
+ 
+from univariate_models.crps.crps_loss_gaussian import get_mu_sigma
 
 
 """
@@ -31,4 +33,29 @@ def visualize_gaussian_predictions(y_true, y_pred):
             ax[idx].set_xlabel("Value")
             ax[idx].set_ylabel("Density")
             ax[idx].grid()
+    plt.show()
+    
+"""
+    Compute a Probability Integral Transformation of the forecasted Gaussian distributions and observations
+"""
+def do_gaussian_PIT(y_true, y_pred):
+    
+    dim = y_true.shape[1]
+    qs = [[] for i in range(dim)]
+    
+    #The get_mu_sigma function converts the predictions to the means and standard devations
+    mus, sigmas = get_mu_sigma(y_pred, dim)
+    
+    for mu, sigma, real in zip(mus, sigmas, y_true): #Iterate over each (x, y) pair
+        for idx, (m, s, r) in enumerate(zip(mu, sigma, real)):
+            #Add the computed cdf value.
+            qs[idx].append(norm(m, s).cdf(r))
+            
+    plt.figure()
+    for idx, q in enumerate(qs):
+        plt.plot(np.linspace(0,1,len(q)), sorted(q), label=f"Dim {idx+1}")
+        plt.xlabel("Uniform quantiles")
+        plt.ylabel("PIT quantiles")
+        plt.legend()
+        plt.grid()
     plt.show()
