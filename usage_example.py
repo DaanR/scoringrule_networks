@@ -1,6 +1,4 @@
-import quantile_network
-
-
+import code.quantile_network
 
 
 if __name__ == "__main__":
