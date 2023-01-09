@@ -5,8 +5,8 @@ from numpy.random import normal
 
 import sys
 sys.path.append('..') # Add the parent folder
-from univariate_models.crps.crps_loss_gaussian import gaussian_CRPS_loss
-from univariate_models.crps.visualizations.gaussian_visualizations import visualize_gaussian_predictions, do_gaussian_PIT
+from univariate_models.crps.crps_loss_gaussian import gaussian_CRPS_loss, get_mu_sigma
+from visualizations.visualize_univariate_mixture_gaussians import visualize_gaussian_predictions, do_gaussian_PIT
 
 
 """
@@ -57,19 +57,29 @@ if __name__ == "__main__":
     n_train = 10000
     n_test = 1000
     
+    ''' Defining the model '''
     model = gaussian_crps_model(input_dim, target_dim)
+    
+    ''' Generating dummy data '''
     x_train, y_train = generate_dummy_data(input_dim, target_dim, n_train)
     x_test, y_test = generate_dummy_data(input_dim, target_dim, n_test)
 
-    # Train the model a couple of epochs
+    ''' Training the model '''
     model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs = epochs)
     
-    # Predict on unseen data
+    ''' Making predictions '''
     y_pred = model.predict(x_test)
     
-    # Make plot visualizations
-    examples = 5
-    visualize_gaussian_predictions(y_test[:examples], y_pred[:examples])
+    # Convert the predictions to tensors of denoting the means and standard deviations
+    mus, sigmas = get_mu_sigma(y_pred, target_dim) # mus and sigmas are identically shaped to y_test
     
-    # Compute probability integral transformations
-    do_gaussian_PIT(y_test, y_pred)
+    # Convert them to numpy arrays. Makes visualization easier
+    mus = mus.numpy()
+    sigmas = sigmas.numpy()
+    
+    ''' Visualizing the output '''
+    examples = 5
+    visualize_gaussian_predictions(y_test[:examples], mus[:examples], sigmas[:examples])
+    
+    ''' Probability integral transformations'''
+    do_gaussian_PIT(y_test, mus, sigmas)

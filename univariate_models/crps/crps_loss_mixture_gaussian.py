@@ -22,8 +22,8 @@ def activation_stdevs(stdevs):
 """
 def activation_weights(weights, n_mixtures):
     weights = 0.001+0.999*keras.activations.sigmoid(weights)
-    sums = tf.reduce_sum(weights, axis=2)
-    sums = repeat_var(sums, n_mixtures)
+    sums = tf.reduce_sum(weights, axis=1)
+    sums = repeat_var(sums, n_mixtures, axis=1)
     return weights / sums
 
 
@@ -39,8 +39,7 @@ def activation_weights(weights, n_mixtures):
         arr2[a, b, d, i] = val
 """
 def create_mesh(inp_arr):
-    arr = tf.stack([inp_arr])
-    arr = tf.transpose(arr, perm=[1, 2, 0, 3])
+    arr = tf.expand_dims(inp_arr, axis=2)
     arr = tf.repeat(arr, repeats=arr.shape[3], axis=2)
     arr2 = tf.transpose(arr, perm = [0, 1, 3, 2])
     return arr, arr2
@@ -53,14 +52,10 @@ def create_mesh(inp_arr):
     :param y_true: an (batch_size, d) sized tensor
     :param n_mixtures: an integer
     :param true2: an (batch_size, d, n_mixtures) sized tensor
-    
-    If the y_true[a,b] = val, then for all 1 <= i <= d:
-            true2[a,b,i] = val
 """
-def repeat_var(y_true, n_mixtures):
-    true2 = tf.stack([y_true])
-    true2 = tf.transpose(true2, perm=[1, 2, 0])
-    true2 = tf.repeat(true2, repeats=n_mixtures, axis=2)
+def repeat_var(y_true, n_repeats, axis = 2):
+    true2 = tf.expand_dims(y_true, axis)
+    true2 = tf.repeat(true2, repeats=n_repeats, axis=axis)
     return true2
 
 
@@ -120,6 +115,22 @@ def mixture_gaussian_CRPS(y_true, means, stdevs, weights):
     #Return the final CRPS expression
     return tf.reduce_mean(CRPS1 - CRPS2)
 
+"""
+    Cuts the (batch_size, n_mixtures, 3*d) model output in three (activated) tensors of shape (batch_size, n_mixtures, d)
+"""
+def preprocess_mixture_output(y_pred, d):
+    n_mixtures = y_pred.shape[1]
+    # Cut the predictions into three parts, denoting the means, standard deviations and weights of the mixtures
+    means = tf.gather(y_pred, range(d), axis=2)
+    stdevs = tf.gather(y_pred, range(d, 2*d), axis=2)
+    weights = tf.gather(y_pred, range(2*d, 3*d), axis=2)
+
+    # Activate them to cast them to the required intervals
+    stdevs = activation_stdevs(stdevs)
+    weights = activation_weights(weights, n_mixtures)
+    
+    return means, stdevs, weights
+
 
 """
     Wrapper to use mixture Gaussian CRPS as a keras loss function
@@ -131,21 +142,6 @@ def mixture_gaussian_CRPS(y_true, means, stdevs, weights):
 """
 def mixture_gaussian_CRPS_loss(y_true, y_pred):
     d = y_true.shape[1]
-    n_mixtures = y_pred.shape[1]
-    
-    # Cut the predictions into three parts, denoting the means, standard deviations and weights of the mixtures
-    means = tf.gather(y_pred, range(d), axis=2)
-    stdevs = tf.gather(y_pred, range(d, 2*d), axis=2)
-    weights = tf.gather(y_pred, range(2*d, 3*d), axis=2)
-    
-    # Transpose them to (batch_size, d, n_mixtures) shaped tensors
-    # NOTE: there's a lot of unncessecary transposing going on
-    means = tf.transpose(means, perm=[0, 2, 1])
-    stdevs = tf.transpose(stdevs, perm=[0, 2, 1])
-    weights = tf.transpose(weights, perm=[0, 2, 1])
+    means, stdevs, weights = preprocess_mixture_output(y_pred, d)
 
-    # Activate them to cast them to the required intervals
-    stdevs = activation_stdevs(stdevs)
-    weights = activation_weights(weights, n_mixtures)
-    
     return mixture_gaussian_CRPS(y_true, means, stdevs, weights)
