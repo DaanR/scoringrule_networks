@@ -1,4 +1,4 @@
-This repo contains Keras/Tensorflow based implementations of multiple strictly proper scoring rules. These scoring rules are usable as loss functions for Artificial Neural Networks, allowing users to train probabilistic forecasting models (also known as distribution/distributional regression or density regression/forecasting), that can forecast target variables via probability distributions.
+This repo contains Keras/Tensorflow based implementations of various strictly proper scoring rules. These scoring rules are usable as loss functions for Artificial Neural Networks, allowing users to train probabilistic forecasting models (also known as distribution/distributional regression or density regression/forecasting), that can forecast target variables via probability distributions.
 
 # Scoring rules currently included #
 
