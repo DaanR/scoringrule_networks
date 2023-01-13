@@ -20,9 +20,9 @@ Splits the y_pred forecast into activated means and standard deviations
 :return mu: a (batch_size, n) shaped tensor, containing the forecasted means.
 :return sigma: a (batch_size, n) shaped tensor, containing the forecasted standard devations
 """
-def get_mu_sigma(y_pred, n):
-    mu = tf.gather(y_pred, range(n), axis=1)
-    sigma = tf.gather(y_pred, range(n, 2*n), axis=1)
+def get_mu_sigma(y_pred, n_targets):
+    mu = tf.gather(y_pred, range(n_targets), axis=1)
+    sigma = tf.gather(y_pred, range(n_targets, 2*n_targets), axis=1)
     sigma = activations_stdev(sigma)
     return mu, sigma
 
@@ -30,9 +30,9 @@ def get_mu_sigma(y_pred, n):
 """
 Computes CRPS. TODO: cite the source of this CRPS expression
 
-:param mu: a (batch_size, n) shaped tensor, containing the forecasted means
-:param sigma: a (batch_size, n) shaped tensor, containing the forecasted standard deviations
-:param y_true: a (batch_size, n) shaped tensor, containing the observations
+:param mu: a (batch_size, n_targets) shaped tensor, containing the forecasted means
+:param sigma: a (batch_size, n_targets) shaped tensor, containing the forecasted standard deviations
+:param y_true: a (batch_size, n_targets) shaped tensor, containing the observations
 
 :return: a (1,) shaped tensor, containing the mean CRPS
 """
@@ -52,14 +52,14 @@ The source for this formula is given by:
     Model Output Statistics and Minimum CRPS Estimation.” Monthly
     Weather Review 133: 1098–1118.
 
-:param y_true: a (batch_size, n) shaped tensor, containing the measurements
-:param y_pred: a (batch_size, 2*n) shaped tensor, with:
-                    y_pred[:,:n] containing the forecasted means
-                    y_pred[:,n:] containing the forecasted standard deviations
+:param y_true: a (batch_size, n_targets) shaped tensor, containing the measurements
+:param y_pred: a (batch_size, 2*n_targets) shaped tensor, with:
+                    y_pred[:,:n_targets] containing the forecasted means
+                    y_pred[:,n_targets:] containing the forecasted standard deviations
 :return: a (1,) shaped tensor, the mean CRPS computed over the forecasted distributions
 """
 def gaussian_CRPS_loss(y_true, y_pred):
-    n = y_true.shape[1]
-    mu, sigma = get_mu_sigma(y_pred, n)
+    n_targets = y_true.shape[1]
+    mu, sigma = get_mu_sigma(y_pred, n_targets)
     return gaussian_CRPS(mu, sigma, y_true)
     

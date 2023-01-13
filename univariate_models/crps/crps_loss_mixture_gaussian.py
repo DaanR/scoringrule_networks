@@ -78,10 +78,10 @@ def A(mu, sigma):
         and Its Application to Mesoscale Forecast Ensemble Verification.”
         Quarterly Journal of the Royal Meteorological Society 132: 2925–42.
     
-    :param y_true: a (batch_size, d) shaped tensor
-    :param means: a (batch_size, n_mixtures, d) shaped tensor containing each mixture's mean
+    :param y_true: a (batch_size, n_targets) shaped tensor
+    :param means: a (batch_size, n_mixtures, n) shaped tensor containing each mixture's mean
     :param stdevs: a (batch_size, n_mixtures, d) shaped tensor containing each mixture's standard deviation
-    :param weights: a (batch_size, n_mixtures, d) shaped tensor, containing each mixture's weight.
+    :param weights: a (batch_size, n_mixtures, n_targets) shaped tensor, containing each mixture's weight.
 """
 def mixture_gaussian_CRPS(y_true, means, stdevs, weights):
     n_mixtures = means.shape[1]
@@ -116,14 +116,14 @@ def mixture_gaussian_CRPS(y_true, means, stdevs, weights):
     return tf.reduce_mean(CRPS1 - CRPS2)
 
 """
-    Cuts the (batch_size, n_mixtures, 3*d) model output in three (activated) tensors of shape (batch_size, n_mixtures, d)
+    Cuts the (batch_size, n_mixtures, 3*n_targets) model output in three (activated) tensors of shape (batch_size, n_mixtures, n_targets)
 """
-def preprocess_mixture_output(y_pred, d):
+def preprocess_mixture_output(y_pred, n_targets):
     n_mixtures = y_pred.shape[1]
     # Cut the predictions into three parts, denoting the means, standard deviations and weights of the mixtures
-    means = tf.gather(y_pred, range(d), axis=2)
-    stdevs = tf.gather(y_pred, range(d, 2*d), axis=2)
-    weights = tf.gather(y_pred, range(2*d, 3*d), axis=2)
+    means = tf.gather(y_pred, range(n_targets), axis=2)
+    stdevs = tf.gather(y_pred, range(n_targets, 2*n_targets), axis=2)
+    weights = tf.gather(y_pred, range(2*n_targets, 3*n_targets), axis=2)
 
     # Activate them to cast them to the required intervals
     stdevs = activation_stdevs(stdevs)
@@ -135,13 +135,13 @@ def preprocess_mixture_output(y_pred, d):
 """
     Wrapper to use mixture Gaussian CRPS as a keras loss function
     
-    :param y_true: an (batch_size, d) shaped tensor
-    :param y_pred: an (batch_size, n_mixtures, 3*d) shaped tensor
+    :param y_true: an (batch_size, n_targets) shaped tensor
+    :param y_pred: an (batch_size, n_mixtures, 3*n_targets) shaped tensor
     
     :return the mean mixture Gaussian CRPS
 """
 def mixture_gaussian_CRPS_loss(y_true, y_pred):
-    d = y_true.shape[1]
-    means, stdevs, weights = preprocess_mixture_output(y_pred, d)
+    n_targets = y_true.shape[1]
+    means, stdevs, weights = preprocess_mixture_output(y_pred, n_targets)
 
     return mixture_gaussian_CRPS(y_true, means, stdevs, weights)

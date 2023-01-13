@@ -1,7 +1,5 @@
 import keras
 from keras.layers import Dense, Reshape
-import numpy as np
-from numpy.random import normal, randint
 
 import sys
 sys.path.append('..') # Add the parent folder
@@ -9,6 +7,8 @@ sys.path.append('..') # Add the parent folder
 from univariate_models.crps.crps_loss_mixture_gaussian import mixture_gaussian_CRPS_loss, preprocess_mixture_output
 from visualizations.visualize_univariate_mixture_gaussians import visualize_gaussian_predictions, do_gaussian_PIT
 
+
+from example_data_generation.generate_example_data import generate_bim_gaussian_univar_data
 
 """
      Defines a simple example model, with three hidden layers and "adam" loss.
@@ -32,50 +32,6 @@ def gaussian_crps_model(import_dim, target_dim, n_mixtures):
     return model
 
 
-"""
-    Generates a dummy dataset. Entries in x and y are related (sampled from an identical distribution)
-    but entries in y are warped by linear transformed).
-    
-    Models will attempt to learn the (linearly transformed versions of the) input distribution from the inputs x
-    mapped those mappings.
-    
-     :param input_dim: an integer, denoting the size of the input layer
-     :param output_dim: an integer, denoting the dimensionality of the target distribution
-     :param n: the required number of datapoints
-     
-     :return x: an (n, input_dim) shaped numpy array, of input data.
-     :return y: an (n, output_dim) shaped numpy array, of target data
-"""
-def generate_dummy_data(input_dim, target_dim, n):
-    x = np.empty((n, input_dim))
-    y = np.empty((n, target_dim))
-    for idx, (x_val, y_val) in enumerate(zip(x, y)):
-        
-        # First mixture
-        random_mean1 = normal(loc = 0, scale = 1)
-        random_stdev1 = np.abs(normal(loc = 1, scale = 1)) + 1e-5 # Small addition to ensure strict positivity
-        
-        # Second mixture
-        random_mean2 = normal(loc = 10, scale = 1)
-        random_stdev2 = np.abs(normal(loc = 1, scale = 1)) + 1e-5 # Small addition to ensure strict positivity
-        
-        samples = normal(loc = random_mean1, scale = random_stdev1, size = input_dim + target_dim)
-        samples2 = normal(loc = random_mean2, scale = random_stdev2, size = input_dim + target_dim)
-        
-        # 0.5 probability for each mixture
-        randints = randint(0, 2, size = input_dim + target_dim)
-        
-        # This is in essence a mixture Gaussian with 50% probability for each mixture
-        samples = randints * samples + (1 - randints) * samples2
-        
-        this_x = samples[:input_dim]
-        this_y = [(i+1) * s - i for i, s in enumerate(samples[input_dim:])]
-        x[idx,:] = this_x
-        y[idx,:] = this_y
-    return x, y
-
-
-
 
 """
     In this example, we define a simple ANN model, and train it via Gaussian CRPS loss.
@@ -95,8 +51,12 @@ if __name__ == "__main__":
     model = gaussian_crps_model(input_dim, target_dim, n_mixtures)
     
     ''' Generating dummy data '''
-    x_train, y_train = generate_dummy_data(input_dim, target_dim, n_train)
-    x_test, y_test = generate_dummy_data(input_dim, target_dim, n_test)
+    x_train, y_train = generate_bim_gaussian_univar_data(input_dim, target_dim, n_train)
+    x_test, y_test = generate_bim_gaussian_univar_data(input_dim, target_dim, n_test)
+    
+    print("Data shapes")
+    print("x_train", x_train.shape, "y_train", y_train.shape)
+    print("x_test", x_test.shape, "y_test", y_test.shape)
 
     ''' Training the model '''
     model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs = epochs)

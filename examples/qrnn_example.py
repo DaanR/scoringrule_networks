@@ -1,10 +1,10 @@
 import keras
-from keras.layers import Dense
+from keras.layers import Dense, Reshape
 
 import sys
 sys.path.append('..') # Add the parent folder
-from univariate_models.crps.crps_loss_gaussian import gaussian_CRPS_loss, get_mu_sigma
-from visualizations.visualize_univariate_mixture_gaussians import visualize_gaussian_predictions, do_gaussian_PIT
+
+from univariate_models.quantile_regression.quantile_loss import double_quantile_loss
 
 from example_data_generation.generate_example_data import generate_gaussian_univar_data, generate_bim_gaussian_univar_data
 
@@ -12,14 +12,15 @@ from example_data_generation.generate_example_data import generate_gaussian_univ
 """
      Defines a simple example model, with two hidden layers and "adam" loss.
 """
-def gaussian_crps_model(import_dim, target_dim):
+def qrnn_model(import_dim, target_dim, n_quantiles):
     model = keras.Sequential()
     model.add(keras.Input(shape=(import_dim)))
     model.add(Dense(32, activation="relu"))
     model.add(Dense(32, activation="relu"))
-    model.add(Dense(2 * target_dim))
+    model.add(Dense(target_dim * n_quantiles))
+    model.add(Reshape((target_dim, n_quantiles)))
     model.summary()
-    model.compile(loss = gaussian_CRPS_loss, optimizer="adam")
+    model.compile(loss = double_quantile_loss, optimizer="adam")
     return model
 
 
@@ -33,18 +34,18 @@ def do_experiment(model, x_train, y_train, x_test, y_test):
     y_pred = model.predict(x_test)
     
     # Convert the predictions to tensors of denoting the means and standard deviations
-    mus, sigmas = get_mu_sigma(y_pred, target_dim) # mus and sigmas are identically shaped to y_test
+    #mus, sigmas = get_mu_sigma(y_pred, target_dim) # mus and sigmas are identically shaped to y_test
     
     # Convert them to numpy arrays. Makes visualization easier
-    mus = mus.numpy()
-    sigmas = sigmas.numpy()
+    #mus = mus.numpy()
+    #sigmas = sigmas.numpy()
     
     ''' Visualizing the output '''
     examples = 5
-    visualize_gaussian_predictions(y_test[:examples], mus[:examples], sigmas[:examples])
+    #visualize_gaussian_predictions(y_test[:examples], mus[:examples], sigmas[:examples])
     
     ''' Probability integral transformations'''
-    do_gaussian_PIT(y_test, mus, sigmas)
+    #do_gaussian_PIT(y_test, mus, sigmas)
     
     
     
@@ -54,6 +55,7 @@ def do_experiment(model, x_train, y_train, x_test, y_test):
 if __name__ == "__main__":
     input_dim = 10
     target_dim = 5
+    nr_quantiles = 20
     
     epochs = 15
     
@@ -69,7 +71,7 @@ if __name__ == "__main__":
     
     
     ''' Defining the model '''
-    model = gaussian_crps_model(input_dim, target_dim)
+    model = qrnn_model(input_dim, target_dim, nr_quantiles)
     
     ''' Generating dummy data '''
     x_train, y_train = generate_gaussian_univar_data(input_dim, target_dim, n_train)
@@ -90,7 +92,7 @@ if __name__ == "__main__":
     print("Experiment 2: bimodal Gaussian target distributions, with Gaussian model")
     
     ''' Defining the model '''
-    model = gaussian_crps_model(input_dim, target_dim)
+    model = qrnn_model(input_dim, target_dim, nr_quantiles)
     
     ''' Generating dummy data '''
     x_train, y_train = generate_bim_gaussian_univar_data(input_dim, target_dim, n_train)
