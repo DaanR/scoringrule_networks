@@ -7,6 +7,7 @@ sys.path.append('..') # Add the parent folder
 from univariate_models.quantile_regression.quantile_loss import double_quantile_loss
 
 from example_data_generation.generate_example_data import generate_gaussian_univar_data, generate_bim_gaussian_univar_data
+from visualizations.visualize_quantiles import visualize_quantiles
 
 
 """
@@ -33,19 +34,11 @@ def do_experiment(model, x_train, y_train, x_test, y_test):
     ''' Making predictions '''
     y_pred = model.predict(x_test)
     
-    # Convert the predictions to tensors of denoting the means and standard deviations
-    #mus, sigmas = get_mu_sigma(y_pred, target_dim) # mus and sigmas are identically shaped to y_test
-    
-    # Convert them to numpy arrays. Makes visualization easier
-    #mus = mus.numpy()
-    #sigmas = sigmas.numpy()
-    
     ''' Visualizing the output '''
     examples = 5
-    #visualize_gaussian_predictions(y_test[:examples], mus[:examples], sigmas[:examples])
+    visualize_quantiles(y_test[:examples], y_pred[:examples])
     
-    ''' Probability integral transformations'''
-    #do_gaussian_PIT(y_test, mus, sigmas)
+    ''' Probability integral transformations (TODO)'''
     
     
     
