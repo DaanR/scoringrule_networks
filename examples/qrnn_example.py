@@ -79,8 +79,8 @@ if __name__ == "__main__":
     
     
     '''
-        Our second experiment is aimed at showing how PIT's detect a non-Gaussian target distribution
-        We enter bimodal Gaussian distributed data into the model, but we still use our Gaussian model.
+        In this second experiment, we will show that quantile regression also works for non-Gaussian distributions.
+        For this, we use the bimodal Gaussian generated dataset.
     '''
     print("Experiment 2: bimodal Gaussian target distributions, with Gaussian model")
     
