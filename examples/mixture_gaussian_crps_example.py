@@ -4,7 +4,8 @@ from keras.layers import Dense, Reshape
 import sys
 sys.path.append('..') # Add the parent folder
 
-from univariate_models.crps.crps_loss_mixture_gaussian import mixture_gaussian_CRPS_loss, preprocess_mixture_output
+from univariate_models.crps.crps_loss_mixture_gaussian import mixture_gaussian_CRPS_loss 
+from univariate_models.mixture_gaussian_helpers import preprocess_mixture_output
 from visualizations.visualize_univariate_mixture_gaussians import visualize_gaussian_predictions, do_gaussian_PIT
 
 

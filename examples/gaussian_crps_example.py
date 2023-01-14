@@ -3,7 +3,8 @@ from keras.layers import Dense
 
 import sys
 sys.path.append('..') # Add the parent folder
-from univariate_models.crps.crps_loss_gaussian import gaussian_CRPS_loss, get_mu_sigma
+from univariate_models.crps.crps_loss_gaussian import gaussian_CRPS_loss
+from univariate_models.gaussian_helpers import get_mu_sigma
 from visualizations.visualize_univariate_mixture_gaussians import visualize_gaussian_predictions, do_gaussian_PIT
 
 from example_data_generation.generate_example_data import generate_gaussian_univar_data, generate_bim_gaussian_univar_data
