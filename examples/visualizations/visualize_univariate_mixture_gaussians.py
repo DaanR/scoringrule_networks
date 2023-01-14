@@ -40,7 +40,7 @@ def convert_to_mixture(mus, sigmas):
 """
 
 def visualize_gaussian_predictions(y_true, mus, sigmas, weights = None):
-    dim = y_true.shape[1]
+    n_targets = y_true.shape[1]
     
     # If a Gaussian distribution is inputted, make it a mixture Gaussian of 1 mixture
     if weights is None:
@@ -54,7 +54,7 @@ def visualize_gaussian_predictions(y_true, mus, sigmas, weights = None):
     # Iterate over each predicted distribution + observation
     for mu, sigma, weight, real in zip(mus, sigmas, weights, y_true):
         #Plot all dim target dimensions in different suplots
-        fig, ax = plt.subplots(1, dim, figsize = (2.2 * dim, 2))
+        fig, ax = plt.subplots(1, n_targets, figsize = (2.2 * n_targets, 2))
         fig.tight_layout()
         
         
@@ -100,7 +100,7 @@ def visualize_gaussian_predictions(y_true, mus, sigmas, weights = None):
 """
 def do_gaussian_PIT(y_true, mus, sigmas, weights = None):
     
-    dim = y_true.shape[1]
+    n_targets = y_true.shape[1]
     
     # If a Gaussian distribution is inputted, make it a mixture Gaussian of 1 mixture
     if weights is None:
@@ -112,7 +112,7 @@ def do_gaussian_PIT(y_true, mus, sigmas, weights = None):
     weights = np.swapaxes(weights, 1, 2)
     
     # Data structure that will contain all PIT points
-    qs = [[] for i in range(dim)]
+    qs = [[] for i in range(n_targets)]
     
     # Go through each pair
     for mu, sigma, weight, real in zip(mus, sigmas, weights, y_true): #Iterate over each (x, y) pair

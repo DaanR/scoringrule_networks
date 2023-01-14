@@ -7,7 +7,7 @@ sys.path.append('..') # Add the parent folder
 from univariate_models.quantile_regression.quantile_loss import double_quantile_loss
 
 from example_data_generation.generate_example_data import generate_gaussian_univar_data, generate_bim_gaussian_univar_data
-from visualizations.visualize_quantiles import visualize_quantiles
+from visualizations.visualize_quantiles import visualize_quantiles, quantile_PIT
 
 
 """
@@ -35,11 +35,17 @@ def do_experiment(model, x_train, y_train, x_test, y_test):
     y_pred = model.predict(x_test)
     
     ''' Visualizing the output '''
-    examples = 5
+    examples = 1
+    print("Non-smoothed CDF's")
     visualize_quantiles(y_test[:examples], y_pred[:examples])
+    print("Smoothed CDF's")
+    visualize_quantiles(y_test[:examples], y_pred[:examples], smoothed = True)
     
     ''' Probability integral transformations (TODO)'''
-    
+    print("Non smoothed PIT's")
+    quantile_PIT(y_test, y_pred)
+    print("Smoothed PIT's")
+    quantile_PIT(y_test, y_pred, smoothed = True)
     
     
     
@@ -48,7 +54,7 @@ def do_experiment(model, x_train, y_train, x_test, y_test):
 if __name__ == "__main__":
     input_dim = 10
     target_dim = 5
-    nr_quantiles = 20
+    nr_quantiles = 30
     
     epochs = 15
     
