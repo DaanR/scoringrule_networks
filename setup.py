@@ -9,12 +9,12 @@ setup(name='scoringrule_networks',
       author='Daan Roordink',
       author_email='daan.roordink@gmail.com',
       install_requires=[
-          'pandas',
-          'rpy2',
           'numpy',
+          'matplotlib',
+          'scipy',
           'tensorflow',
           'keras',
-          'tensorflow_probability'
+          'tensorflow-probability'
       ],
       classifiers=[
         "Programming Language :: Python :: 3",

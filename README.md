@@ -7,6 +7,9 @@ This repo contains Keras/Tensorflow based implementations of various strictly pr
        * for Gaussian distributions. (Gneiting et al., 2005)
        * for Gaussian mixture distributions. (Grimit et al, 2006)
     * Quantile regressing neural networks (QRNN) (Taylor, 2000)
+    * Log score/NLPD/MLE
+    	* for Gaussian distributions.
+    	* for Gaussian mixture distributions.
 * **Multivariate scoring rules**
     * None yet.
 
@@ -16,7 +19,6 @@ This repo contains Keras/Tensorflow based implementations of various strictly pr
     * Continuous Ranked Probability Score (CRPS)
        * for Log-normal distributions. (Baran & Lerch, 2015)
        * Non-parametric ensemble CRPS (Zamo & Naveau, 2017)
-    * Log score/NLPD/MLE
 * **Multivariate scoring rules**
     * Energy score (ES)
        * Non-parametric ensemble ES

@@ -5,6 +5,8 @@ import sys
 sys.path.append('..') # Add the parent folder
 
 from univariate_models.crps.crps_loss_mixture_gaussian import mixture_gaussian_CRPS_loss 
+from univariate_models.log_score.logs_loss_mixture_gaussian import mixture_gaussian_logS_loss
+
 from univariate_models.mixture_gaussian_helpers import preprocess_mixture_output
 from visualizations.visualize_univariate_mixture_gaussians import visualize_gaussian_predictions, do_gaussian_PIT
 
@@ -20,7 +22,15 @@ from example_data_generation.generate_example_data import generate_bim_gaussian_
      
      :return: a keras model
 """
-def gaussian_crps_model(import_dim, target_dim, n_mixtures):
+def gaussian_crps_model(import_dim, target_dim, n_mixtures, loss):
+    # Determine which loss is going to be used. Use the other loss function as a metric
+    if loss == "logS":
+        loss_func = mixture_gaussian_logS_loss
+        metric_func = mixture_gaussian_CRPS_loss 
+    else:
+        loss_func = mixture_gaussian_CRPS_loss 
+        metric_func = mixture_gaussian_logS_loss
+        
     model = keras.Sequential()
     model.add(keras.Input(shape=(import_dim)))
     model.add(Dense(32, activation="relu"))
@@ -29,16 +39,19 @@ def gaussian_crps_model(import_dim, target_dim, n_mixtures):
     model.add(Dense(3 * n_mixtures * target_dim))
     model.add(Reshape((n_mixtures, 3 * target_dim)))
     model.summary()
-    model.compile(loss = mixture_gaussian_CRPS_loss, optimizer="adam")
+    model.compile(loss = loss_func, optimizer="adam", metrics=[metric_func])
     return model
 
 
 
 """
-    In this example, we define a simple ANN model, and train it via Gaussian CRPS loss.
+    In this example, we define a simple ANN model, and train it via Gaussian CRPS or Log-score loss
     We will then visualize the predictions, and compute probability integral transformations
 """
 if __name__ == "__main__":
+    
+    loss = "logS" # Either "logS" or "CRPS"
+    
     input_dim = 10
     target_dim = 5
     n_mixtures = 2
@@ -49,7 +62,7 @@ if __name__ == "__main__":
     n_test = 1000
     
     ''' Defining the model '''
-    model = gaussian_crps_model(input_dim, target_dim, n_mixtures)
+    model = gaussian_crps_model(input_dim, target_dim, n_mixtures, loss)
     
     ''' Generating dummy data '''
     x_train, y_train = generate_bim_gaussian_univar_data(input_dim, target_dim, n_train)
