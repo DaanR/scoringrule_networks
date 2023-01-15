@@ -98,7 +98,7 @@ def visualize_quantiles(y_true, all_quantiles, smoothed = False):
             
             ax[idx].fill_between(x, zeros, pred, alpha = 0.3) # Plot the cdf
             ax[idx].plot(x, pred, color='black')
-            ax[idx].plot([this_y, this_y], [0, 1], '--', color='red') # Plot the observations
+            #ax[idx].plot([this_y, this_y], [0, 1], '--', color='red') # Plot the observations
             ax[idx].set_xlabel("Value")
             ax[idx].set_ylabel("Cumulative density")
             ax[idx].grid()
