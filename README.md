@@ -4,7 +4,7 @@ Strictly proper scoring rules are distributional evaluation metrics, that take a
 
 Scoring rules implemented for univariate target distributions include the Log-score/NLPD/maximum likelihood score, the Continuous Ranked Probability Score (CRPS) and quantile loss. For multivariate distributions, the multivariate Log-score, the Energy score, Conditional CRPS and Rotational CRPS.
 
-The scoring rules and their implementations for specific families of distributions have partially been taken from literature, and partially from my Master's thesis, in which I introduced the Conditional CRPS, Rotational CRPS and Energy Score ensemble models. A link to the thesis will be shared as soon as it is available.
+The scoring rules and their implementations for specific families of distributions have partially been taken from literature, and our paper, in which we introduced the Conditional CRPS, Rotational CRPS and Energy Score ensemble models. A link to the thesis will be shared as soon as it is available.
 
 # 1: Scoring rule overview #
 
