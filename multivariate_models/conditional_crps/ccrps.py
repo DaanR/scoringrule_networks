@@ -1,4 +1,14 @@
+
+from univariate_models.crps.crps_loss_mixture_gaussian import mixture_gaussian_CRPS
+import tensorflow as tf
+import keras
+import tensorflow_probability as tfp
+tfd = tfp.distributions
+tfpm = tfp.math
+from math import pi
+
 # In case a variable has to be strictly positive
+
 def activate_pos(arr):
     return 1e-2 + keras.activations.softplus(arr)
 
@@ -159,4 +169,4 @@ def partial_mixture_CCRPS(y_true, y_pred):
     means = tf.concat([cond_means, marg_means], axis=2)
     stdevs = tf.concat([cond_stdevs, marg_stdevs], axis=2)
     weights = tf.concat([cond_weights, marg_weights], axis=2)
-    return mixture_gaussian_CRPS_loss(y, means, stdevs, weights)
+    return mixture_gaussian_CRPS(y, means, stdevs, weights)
