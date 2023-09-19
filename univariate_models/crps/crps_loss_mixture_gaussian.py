@@ -11,7 +11,7 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir) 
 
-from mixture_gaussian_helpers import repeat_var, create_mesh, preprocess_mixture_output
+from univariate_models.mixture_gaussian_helpers import repeat_var, create_mesh, preprocess_mixture_output
 
 
 """
