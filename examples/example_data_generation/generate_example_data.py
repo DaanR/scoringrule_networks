@@ -71,3 +71,8 @@ def generate_bim_gaussian_univar_data(input_dim, target_dim, n):
         x[idx,:] = this_x
         y[idx,:] = this_y
     return x, y
+
+if __name__ == "__main__":
+    x, y = generate_bim_gaussian_univar_data(10, 2, 1000)
+    print(x.shape)
+    print(y.shape)
